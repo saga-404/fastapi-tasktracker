@@ -1,13 +1,13 @@
 # main.py
 import os
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
 
 from db import Base, engine, get_session
-from crud import get_or_create_user, create_task, list_tasks
+from crud import get_or_create_user, create_task, list_tasks, set_task_done
 from schemas import TaskCreate, TaskRead
 
 load_dotenv()
@@ -38,4 +38,12 @@ async def get_tasks(session: AsyncSession = Depends(get_session)):
 async def post_task(data: TaskCreate, session: AsyncSession = Depends(get_session)):
     user = await get_or_create_user(session)
     task = await create_task(session, user.id, data)
+    return task
+
+@app.put("/tasks/{task_id}/done", response_model=TaskRead)
+async def put_task_done(task_id: int, done: bool, session: AsyncSession = Depends(get_session)):
+    user = await get_or_create_user(session)
+    task = await set_task_done(session, task_id, user.id, done)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
     return task

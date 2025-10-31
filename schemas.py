@@ -9,5 +9,6 @@ class TaskRead(BaseModel):
     id: int
     title: str
     memo: str | None
+    is_done: bool
     class Config:
         from_attributes = True

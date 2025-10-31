@@ -15,7 +15,21 @@
       const res = await fetch('/tasks');
       const items = await res.json();
       document.getElementById('list').innerHTML =
-        items.map(t=>`<li>${t.id}: ${t.title}: ${t.memo}</li>`).join('');
+        items.map(t=>`
+            <li>
+                <label>
+                    <input type="checkbox" ${t.is_done ? 'cheked' : ''} onchange="toggleDone(${t.id}, this.checked)">
+                    <span style ="${t.is_done ? 'text-decoration: line-through; color:#888;' : ''}">
+                    ${t.id}: ${t.title}: ${t.memo}
+                    </span>
+                </label>
+            </li>
+        `).join('');
+    }
+
+    async function toggleDone(id, checked){
+        await fetch('/tasks/'+id+'/done?done='+(checked ? 'true' : 'false'), {method:'PUT'});
+        refresh();
     }
     document.getElementById('f').addEventListener('submit', async (e)=>{
       e.preventDefault();

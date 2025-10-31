@@ -24,3 +24,15 @@ async def create_task(session: AsyncSession, owner_id: int, data: TaskCreate) ->
 async def list_tasks(session: AsyncSession, owner_id: int) -> list[Task]:
     res = await session.execute(select(Task).where(Task.owner_id == owner_id).order_by(Task.id.desc()))
     return list(res.scalars())
+
+async def set_task_done(session: AsyncSession, task_id: int, owner_id: int, done: bool) -> Task | None:
+    res = await session.execute(
+        select(Task).where(Task.id == task_id, Task.owner_id == owner_id)
+    )
+    task = res.scalar_one_or_none()
+    if not task:
+        return None
+    task.is_done = done
+    await session.commit()
+    await session.refresh(task)
+    return task

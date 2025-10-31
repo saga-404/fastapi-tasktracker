@@ -1,0 +1,9 @@
+# .gitignore
+.venv/
+__pycache__/
+*.pyc
+app.db
+.env
+.alembic/
+.DS_Store
+.vscode/

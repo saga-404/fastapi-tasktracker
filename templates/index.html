@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Task & Time Tracker</title></head>
+<body>
+  <h1>Task & Time Tracker</h1>
+  <form id="f">
+    <input name="title" placeholder="title" required>
+    <input name="memo" placeholder="memo">
+    <button type="submit">Add</button>
+  </form>
+  <ul id="list"></ul>
+
+  <script>
+    async function refresh(){
+      const res = await fetch('/tasks');
+      const items = await res.json();
+      document.getElementById('list').innerHTML =
+        items.map(t=>`<li>${t.id}: ${t.title}: ${t.memo}</li>`).join('');
+    }
+    document.getElementById('f').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      await fetch('/tasks', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({title: fd.get('title'), memo: fd.get('memo')})});
+      e.target.reset(); refresh();
+    });
+    refresh();
+  </script>
+</body>
+</html>
